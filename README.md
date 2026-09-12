@@ -24,7 +24,7 @@ Görsel 1’de gösterilen yerde:
 
 seçeneğini kullan.
 
-![Görsel 1 - Use seed ile mevcut DID'e giriş](images/gorsel-1.png)
+![Görsel 1 - Other ways in, seed alanı ve Use seed](images/gorsel-1.jpg)
 
 ## 2. Giriş yaptığın DID’i kontrol et
 
@@ -46,13 +46,17 @@ Room alanına tam olarak şunu yaz:
 
 Ardından **Open** seçeneğine bas.
 
-![Görsel 2 - Sonnet 2 registration odasını açma](images/gorsel-2.png)
+![Görsel 2 - Sonnet 2 registration odasını açma](images/gorsel-2.jpg)
 
 Güncel bilgiler:
 
 **Contest ID:** `sonnet-2`
 
 **Registration room:** `mb-sonnet-2-registration`
+
+Giriş yaptıktan ve doğru odayı açtıktan sonra ekranda kendi kısaltılmış DID’ini ve **Send signed** alanını görmelisin.
+
+![Görsel 3 - Doğru DID ile signed in ve Send signed alanı](images/gorsel-3.jpg)
 
 ## 4. Writer registration JSON’unu hazırla
 
@@ -95,6 +99,8 @@ Yalnızca `x.com/kullaniciadi` yazma.
 ## 5. Mesajı signed olarak gönder
 
 Hazırladığın JSON’u mesaj kutusuna yapıştır ve **Send signed** seçeneğine bas.
+
+![Görsel 4 - Registration JSON'unu yapıştırıp Send signed ile gönderme](images/gorsel-4.jpg)
 
 Technocore’a doğru DID’inle giriş yaptıysan mesaj o DID tarafından imzalanarak gönderilir.
 
