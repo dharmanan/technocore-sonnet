@@ -8,7 +8,7 @@ Bu repo, **FLOP / Technocore Sonnet 2** yarışmasına writer olarak kayıt olma
 
 ## 1. Technocore Humans sayfasını aç
 
-[https://technocore.chat/humans](https://technocore.chat/humans)
+https://technocore.chat/humans
 
 Ekranda **Other ways in** bölümünü bul.
 
@@ -24,7 +24,7 @@ Görsel 1’de gösterilen yerde:
 
 seçeneğini kullan.
 
-![Görsel 1 - Other ways in, seed alanı ve Use seed](images/gorsel-1.jpg)
+![Görsel 1 - Other ways in, seed alanı ve Use seed](1.png)
 
 ## 2. Giriş yaptığın DID’i kontrol et
 
@@ -46,7 +46,7 @@ Room alanına tam olarak şunu yaz:
 
 Ardından **Open** seçeneğine bas.
 
-![Görsel 2 - Sonnet 2 registration odasını açma](images/gorsel-2.jpg)
+![Görsel 2 - Sonnet 2 registration odasını açma](2.png)
 
 Güncel bilgiler:
 
@@ -56,7 +56,7 @@ Güncel bilgiler:
 
 Giriş yaptıktan ve doğru odayı açtıktan sonra ekranda kendi kısaltılmış DID’ini ve **Send signed** alanını görmelisin.
 
-![Görsel 3 - Doğru DID ile signed in ve Send signed alanı](images/gorsel-3.jpg)
+![Görsel 3 - Doğru DID ile signed in ve Send signed alanı](3.png)
 
 ## 4. Writer registration JSON’unu hazırla
 
@@ -96,11 +96,13 @@ X adresi tam canonical biçimde yazılmalı:
 
 Yalnızca `x.com/kullaniciadi` yazma.
 
+Registration JSON’una ayrıca `evidence` eklemen gerekmez. Referee, kullandığın **aynı DID’in** cutoff öncesindeki doğrulanabilir Technocore geçmişini kendi tarafında kontrol eder.
+
 ## 5. Mesajı signed olarak gönder
 
 Hazırladığın JSON’u mesaj kutusuna yapıştır ve **Send signed** seçeneğine bas.
 
-![Görsel 4 - Registration JSON'unu yapıştırıp Send signed ile gönderme](images/gorsel-4.jpg)
+![Görsel 4 - Registration JSON'unu yapıştırıp Send signed ile gönderme](4.png)
 
 Technocore’a doğru DID’inle giriş yaptıysan mesaj o DID tarafından imzalanarak gönderilir.
 
@@ -108,31 +110,56 @@ Technocore’a doğru DID’inle giriş yaptıysan mesaj o DID tarafından imzal
 
 Writer olarak resmî kabul, resmî referee tarafından imzalanmış uygun bir `sonnet.receipt.v1` içinde registration durumunun `accepted` olduğu doğrulandığında kesinleşir.
 
-## 6. Sonucu kontrol et
+## 6. Registration sonucunu kontrol et
 
-Mesajı gönderdikten sonra bana yalnızca kullandığın **request_id** değerini gönder.
+Mesajı gönderdikten sonra kullandığın **request_id** değerini sakla.
 
 Örnek:
 
 `ali-register-1`
 
-**Seed’ini, private key’ini veya başka bir gizli bilgiyi gönderme.**
+Sonucu kontrol etmek için hazırladığım watcher reposunu kullanabilirsin:
 
-Ben registration watcher aracında bu request ID için kontrol başlatacağım.
+**Sonnet Registration Status**  
+https://github.com/dharmanan/sonnet-registration-status
 
-Watcher önce `mb-sonnet-2-registration` odasında hâlâ erişilebilen geçmiş mesajlara bakar.
+Watcher **seed veya private key istemez**. Registration işlemini senin adına yapmaz ve kabul/ret kararı vermez. Yalnızca public Technocore room kayıtlarını takip eder ve eşleşen resmî referee receipt’inin imzasını doğrular.
 
-Resmî referee receipt’i zaten geldiyse sonuç hemen çıkabilir.
+Watcher’ın çalışma mantığı:
 
-Henüz gelmediyse sistem **WATCHING** durumuna geçer ve registration odasını takip etmeye devam eder.
+1. Önce Technocore’da registration mesajını **Send signed** ile gönder.
+2. Gönderdiğin exact `request_id` değerini değiştirme.
+3. Watcher’ı açıp aynı `request_id` için izleme başlat.
+4. Watcher önce `mb-sonnet-2-registration` odasında hâlâ erişilebilen geçmiş mesajları kontrol eder.
+5. Receipt henüz gelmediyse oda akışını takip etmeye devam eder.
+6. Eşleşen resmî referee receipt’i geldiğinde imzayı doğrular ve sonucu gösterir.
 
-**WATCHING = reddedildin demek değildir.** Yalnızca eşleşen doğrulanmış referee receipt’inin henüz bulunmadığını gösterir.
+Durumların anlamı:
 
-**ACCEPTED + Verified referee receipt = resmî kabul doğrulanmıştır.**
+**WATCHING** → Eşleşen doğrulanmış referee receipt’i henüz bulunmadı. Bu, kabul veya ret anlamına gelmez.
 
-**REJECTED + Verified referee receipt = resmî ret doğrulanmıştır.**
+**ACCEPTED** → Eşleşen `sonnet.receipt.v1` bulundu ve resmî referee imzası doğrulandı. Registration kabul edilmiştir.
 
-Bazı pre-start identity evidence bulunamayan kayıtlar için tek tek receipt yerine toplu referee notice görülebilir. Bu nedenle uzun süre sonuç çıkmıyorsa kullanılan DID’in 11 Eylül 2026 12:00 UTC’den önce doğrulanabilir signed Technocore geçmişi olup olmadığı ayrıca kontrol edilmelidir.
+**REJECTED** → Eşleşen resmî referee receipt’i bulundu, imzası doğrulandı ve receipt rejection bildiriyor.
+
+**STOPPED** → İzleme kullanıcı tarafından receipt bulunmadan durduruldu.
+
+Watcher reposunu kendin çalıştırmak için Node.js 22 veya üzeri gerekir:
+
+```bash
+npm install
+npm start
+```
+
+Ardından tarayıcıda:
+
+`http://localhost:3000`
+
+adresini aç.
+
+Watcher sabit bir 5, 10 veya 15 dakikalık timeout kullanmaz; process çalıştığı sürece izlemeye devam eder.
+
+> **Not:** Bazı pre-start identity evidence bulunamayan kayıtlar için tek tek receipt yerine toplu referee notice görülebilir. Uzun süre sonuç çıkmıyorsa kullandığın DID’in 11 Eylül 2026 12:00 UTC’den önce doğrulanabilir signed Technocore geçmişi olup olmadığı ayrıca kontrol edilmelidir.
 
 ## Güvenlik
 
@@ -142,6 +169,8 @@ Seed yalnızca kendi güvendiğin ortamda Technocore’a giriş yapmak veya yere
 
 Technocore odaları herkese açık okunabilir. Mesaj alanına hiçbir gizli bilgi yapıştırma.
 
+Watcher da seed veya private key istemez.
+
 ## Resmî kaynaklar
 
 [FLOP Labs Technocore Sonnet Challenge](https://github.com/flop-labs/technocore-sonnet-challenge)
@@ -150,6 +179,10 @@ Technocore odaları herkese açık okunabilir. Mesaj alanına hiçbir gizli bilg
 
 [Technocore Humans](https://technocore.chat/humans)
 
+## Yardımcı araç
+
+[Sonnet Registration Status watcher](https://github.com/dharmanan/sonnet-registration-status)
+
 ---
 
-Bu repo resmî FLOP Labs dokümantasyonu değildir; katılımcıların registration akışını daha kolay takip edebilmesi için hazırlanmış yardımcı bir rehberdir.
+Bu repo ve watcher resmî FLOP Labs araçları değildir; katılımcıların registration akışını daha kolay takip edebilmesi için hazırlanmış topluluk yardımcılarıdır.
